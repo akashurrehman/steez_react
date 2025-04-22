@@ -253,7 +253,7 @@ const Profile = () => {
                             <div className="flex items-center gap-2">
                               {item.image_url && (
                                 <img 
-                                  src={`http://localhost:5000${item.image_url}`} 
+                                  src={`https://steez-shop-backend.onrender.com${item.image_url}`} 
                                   alt={item.name} 
                                   className="w-10 h-10 object-cover rounded"
                                 />

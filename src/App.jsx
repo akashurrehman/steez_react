@@ -131,7 +131,11 @@ const Home = () => {
 );
 
   const showProfileOption = !!user;
-  const isAdmin = user?.role === 'admin';
+
+  console.log("Userrole:",user);
+
+  const isAdmin = user?.role === 'admin' || user?.email === 'admin@gmail.com';
+  console.log("isAdmin:",isAdmin);
 
   // Filter products by category or search term
   const filteredProducts = products.filter((product) => {
@@ -159,7 +163,7 @@ const Home = () => {
   };
 
   // Profile section
-  if (activeSection === "Προφίλ") {
+  if (activeSection === "Προφίλ" && !isAdmin) {
     return <Profile />;
   }
 
@@ -430,14 +434,14 @@ const Home = () => {
                       id: product.id,
                       name: product.name,
                       price: product.price,
-                      image: product.image_url ? `http://localhost:5000${product.image_url}` : `https://via.placeholder.com/400x500?text=${encodeURIComponent(product.name)}`,
+                      image: product.image_url ? `https://steez-shop-backend.onrender.com${product.image_url}` : `https://via.placeholder.com/400x500?text=${encodeURIComponent(product.name)}`,
                       description: product.description
                     })
                   }
                 >
                   <CardContent className="p-4">
                     <img
-                      src={product.image_url ? `http://localhost:5000${product.image_url}` : `https://via.placeholder.com/400x500?text=${encodeURIComponent(product.name)}`}
+                      src={product.image_url ? `https://steez-shop-backend.onrender.com${product.image_url}` : `https://via.placeholder.com/400x500?text=${encodeURIComponent(product.name)}`}
                       alt={product.name}
                       className="w-full rounded-xl"
                     />
@@ -456,7 +460,7 @@ const Home = () => {
                               id: product.id, 
                               name: product.name, 
                               price: product.price, 
-                              image: product.image_url ? `http://localhost:5000${product.image_url}` : null,
+                              image: product.image_url ? `https://steez-shop-backend.onrender.com${product.image_url}` : null,
                               qty: 1 
                             }];
                           });

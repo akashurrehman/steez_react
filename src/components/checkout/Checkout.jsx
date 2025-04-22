@@ -3,7 +3,7 @@ import { loadStripe } from "@stripe/stripe-js";
 import { Elements, CardElement, useStripe, useElements } from "@stripe/react-stripe-js";
 import { createOrder } from "../../api";
 
-const stripePromise = loadStripe('pk_test_51RDsr3FKpo9LLzkWFEshvq9vdLvX7k88oQGPX6AprBXhd7b1aeRbWrbEbheriVUSYYB8K3P6CeXTkdE6l2WXdzBf00aaLXE4RN');
+const stripePromise = loadStripe('pk_test_51RFKDd09g2nYGpkkGnW28hEbjPa7N7WGa1hAicX24O2wEHpCuhBx97ZbW5aIWhKNYcXrURREeK1muBTvhqpoEj8T00Sk17rvQ8');
 
 const CheckoutForm = ({ cartItems, setCartItems, setActiveSection, formData, setFormData, setError }) => {
   const stripe = useStripe();

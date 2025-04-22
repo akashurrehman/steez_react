@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { getUserProfile, updateUserProfile, getMyOrders } from "../../api";
+import AdminProductManagement from "./AdminProductManagement";
 
 const AdminPanel = () => {
   const [userData, setUserData] = useState(null);
@@ -91,11 +92,18 @@ const AdminPanel = () => {
             Στοιχεία Προφίλ
           </button>
           <button
+            onClick={() => setActiveTab("products")}
+            className={`px-6 py-3 ${activeTab === "products" ? "border-b-2 border-white font-bold" : "text-gray-400"}`}
+          >
+            Product Management
+          </button>
+          <button
             onClick={() => setActiveTab("orders")}
             className={`px-6 py-3 ${activeTab === "orders" ? "border-b-2 border-white font-bold" : "text-gray-400"}`}
           >
             Οι Παραγγελίες μου
           </button>
+
         </div>
         
         {activeTab === "profile" && (
@@ -202,7 +210,7 @@ const AdminPanel = () => {
                             <div className="flex items-center gap-2">
                               {item.image_url && (
                                 <img 
-                                  src={`http://localhost:5000${item.image_url}`} 
+                                  src={`https://steez-shop-backend.onrender.com${item.image_url}`} 
                                   alt={item.name} 
                                   className="w-10 h-10 object-cover rounded"
                                 />
@@ -225,6 +233,7 @@ const AdminPanel = () => {
             )}
           </div>
         )}
+        {activeTab === "products" && <AdminProductManagement />}
       </div>
     </div>
   );

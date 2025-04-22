@@ -1,6 +1,6 @@
 import axios from 'axios';
 
-const API_URL = 'http://localhost:5000/api';
+const API_URL = 'https://steez-shop-backend.onrender.com/api';
 
 export const api = axios.create({
   baseURL: API_URL,
@@ -9,7 +9,7 @@ export const api = axios.create({
   },
 });
 
-// Interceptor για να προσθέσει token σε όσα endpoints το χρειάζονται
+// Interceptor to add token to requests
 api.interceptors.request.use((config) => {
   const token = localStorage.getItem('token');
   if (token) {
@@ -18,27 +18,90 @@ api.interceptors.request.use((config) => {
   return config;
 });
 
-// --------- ΠΡΟΪΟΝΤΑ ---------
+// --------- PRODUCTS ---------
 export const getProducts = () => api.get('/products');
 export const getProductById = (id) => api.get(`/products/${id}`);
 export const getProductsByCategory = (categoryId) => api.get(`/products?category=${categoryId}`);
 export const getProductsByBrand = (brandId) => api.get(`/products?brand=${brandId}`);
 
-// --------- ΚΑΤΗΓΟΡΙΕΣ ---------
+// Update the createProduct API function:
+export const createProduct = (productData) => {
+  const formData = new FormData();
+  
+  // Append all fields with proper validation
+  formData.append('name', productData.name);
+  formData.append('description', productData.description);
+  formData.append('price', productData.price.toString());
+  formData.append('stock', productData.stock.toString());
+  
+  if (productData.category_id) {
+    formData.append('category_id', productData.category_id.toString());
+  }
+  
+  if (productData.brand_id) {
+    formData.append('brand_id', productData.brand_id.toString());
+  }
+  
+  // Append image file if exists
+  if (productData.image) {
+    formData.append('image', productData.image);
+  }
+
+  return api.post('/products', formData, {
+    headers: {
+      'Content-Type': 'multipart/form-data',
+    },
+  });
+};
+
+export const updateProduct = (id, productData) => {
+  const formData = new FormData();
+  
+  // Append all fields with proper type conversion
+  formData.append('name', productData.name);
+  formData.append('description', productData.description || '');
+  formData.append('price', productData.price.toString());
+  formData.append('stock', productData.stock.toString());
+  
+  if (productData.category_id) {
+    formData.append('category_id', productData.category_id.toString());
+  }
+  
+  if (productData.brand_id) {
+    formData.append('brand_id', productData.brand_id.toString());
+  }
+  
+  // Append new image file if exists
+  if (productData.image && productData.image instanceof File) {
+    formData.append('image', productData.image);
+  }
+
+  return api.put(`/products/${id}`, formData, {
+    headers: {
+      'Content-Type': 'multipart/form-data',
+    },
+  });
+};
+
+export const deleteProduct = (productId) => api.delete(`/products/${productId}`);
+
+// --------- CATEGORIES ---------
 export const getCategories = () => api.get('/categories');
 
-// --------- ΜΑΡΚΕΣ ---------
+// --------- BRANDS ---------
 export const getBrands = () => api.get('/brands');
 
-// --------- ΧΡΗΣΤΕΣ ---------
-export const register = (userData) => api.post('/users/register', userData);
+// --------- USERS ---------
+export const register = (userData) => api.post('/users/register', userData, {
+  headers: {
+    'Content-Type': 'application/json'
+  }
+});
 export const login = (credentials) => api.post('/users/login', credentials);
 export const getUserProfile = () => api.get('/users/profile');
 export const updateUserProfile = (userData) => api.put('/users/profile', userData);
 
-// --------- ΠΑΡΑΓΓΕΛΙΕΣ ---------
-
-// 🆕 Guest-friendly παραγγελία – στέλνει token ΜΟΝΟ αν υπάρχει
+// --------- ORDERS ---------
 export const createOrder = async (orderData) => {
   const token = localStorage.getItem('token');
 
