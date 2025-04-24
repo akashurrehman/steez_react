@@ -14,6 +14,7 @@ const Home = () => {
   const { user, isGuest, logout, guestLogin } = useAuth();
 
   const [authMode, setAuthMode] = useState(null); // 'login' or 'register'
+  const [showMobileMenu, setShowMobileMenu] = useState(false); // Add this line
 
   // Cart state
   const [cartItems, setCartItems] = useState(() => {
@@ -260,19 +261,51 @@ const Home = () => {
 
   return (
     <div className="bg-black text-white min-h-screen font-sans scrollbar-thin scrollbar-thumb-zinc-700 scrollbar-track-zinc-900 overflow-y-scroll">
-      {/* Header */}
-      <header className="flex flex-col md:flex-row items-center justify-between px-6 py-4 bg-black border-b border-zinc-800 relative md:gap-0 gap-4">
-        <img
-          src="src/steez.png"
-          alt="STEEZ.GR Logo"
-          className="h-20 w-auto scale-[3] origin-left cursor-pointer z-10"
-          onClick={() => {
-            setActiveSection("Αρχική Σελίδα");
-            setSearchTerm("");
-            setActiveBrand(null);
-          }}
-        />
-        <nav className="w-full flex justify-center md:justify-center md:absolute md:left-1/2 md:transform md:-translate-x-1/2 mt-4 md:mt-0 gap-4 text-sm md:text-base font-medium uppercase">
+      <header className="flex flex-col md:flex-row items-center justify-between px-4 py-4 bg-black border-b border-zinc-800 relative gap-4">
+        {/* Logo - centered on mobile, left on desktop */}
+        <div className="w-full md:w-auto flex justify-center md:justify-start">
+          <img
+            src="src/steez.png"
+            alt="STEEZ.GR Logo"
+            className="h-12 md:h-24 w-auto cursor-pointer"
+            onClick={() => {
+              setActiveSection("Αρχική Σελίδα");
+              setSearchTerm("");
+              setActiveBrand(null);
+            }}
+          />
+        </div>
+
+        {/* Mobile menu button - only shows on small screens */}
+        <div className="md:hidden flex items-center justify-between w-full">
+          <button
+            onClick={() => setShowMobileMenu(!showMobileMenu)}
+            className="text-white p-2"
+          >
+            <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              {showMobileMenu ? (
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+              ) : (
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
+              )}
+            </svg>
+          </button>
+
+          {/* Cart button - mobile */}
+          <div className="relative">
+            <button onClick={() => setShowCart(!showCart)} className="relative">
+              <ShoppingCart size={24} />
+              {cartItems.length > 0 && (
+                <span className="absolute -top-2 -right-2 bg-white text-black rounded-full px-2 py-0.5 text-xs font-bold select-none">
+                  {cartItems.length}
+                </span>
+              )}
+            </button>
+          </div>
+        </div>
+
+        {/* Navigation - hidden on mobile when menu is closed */}
+        <nav className={`${showMobileMenu ? 'flex' : 'hidden'} md:flex flex-col md:flex-row items-center w-full md:w-auto md:absolute md:left-1/2 md:transform md:-translate-x-1/2 gap-2 md:gap-4 text-sm md:text-base font-medium uppercase`}>
           {["Αρχική Σελίδα", "Προϊόντα", "Επικοινωνία", "Αναζήτηση Δέματος"].map(
             (key) => (
               <button
@@ -280,8 +313,9 @@ const Home = () => {
                 onClick={() => {
                   setActiveSection(key);
                   setActiveBrand(null);
+                  setShowMobileMenu(false);
                 }}
-                className={`px-4 py-2 rounded-lg border border-white/20 hover:bg-white hover:text-black transition ${activeSection === key ? "bg-white text-black" : "bg-zinc-800 text-white"
+                className={`w-full md:w-auto px-4 py-2 rounded-lg border border-white/20 hover:bg-white hover:text-black transition ${activeSection === key ? "bg-white text-black" : "bg-zinc-800 text-white"
                   }`}
               >
                 {key.charAt(0).toUpperCase() + key.slice(1)}
@@ -290,8 +324,11 @@ const Home = () => {
           )}
           {showProfileOption && (
             <button
-              onClick={() => setActiveSection("Προφίλ")}
-              className={`px-4 py-2 rounded-lg border border-white/20 hover:bg-white hover:text-black transition ${activeSection === "Προφίλ" ? "bg-white text-black" : "bg-zinc-800 text-white"
+              onClick={() => {
+                setActiveSection("Προφίλ");
+                setShowMobileMenu(false);
+              }}
+              className={`w-full md:w-auto px-4 py-2 rounded-lg border border-white/20 hover:bg-white hover:text-black transition ${activeSection === "Προφίλ" ? "bg-white text-black" : "bg-zinc-800 text-white"
                 }`}
             >
               Προφίλ
@@ -299,8 +336,11 @@ const Home = () => {
           )}
           {isAdmin && (
             <button
-              onClick={() => setActiveSection("Admin")}
-              className={`px-4 py-2 rounded-lg border border-white/20 hover:bg-white hover:text-black transition ${activeSection === "Admin" ? "bg-white text-black" : "bg-zinc-800 text-white"
+              onClick={() => {
+                setActiveSection("Admin");
+                setShowMobileMenu(false);
+              }}
+              className={`w-full md:w-auto px-4 py-2 rounded-lg border border-white/20 hover:bg-white hover:text-black transition ${activeSection === "Admin" ? "bg-white text-black" : "bg-zinc-800 text-white"
                 }`}
             >
               Admin
@@ -308,68 +348,74 @@ const Home = () => {
           )}
         </nav>
 
-        {/* Auth buttons */}
-        {renderAuthButtons()}
-
-        {/* Cart button */}
-        <div className="absolute top-6 right-6 flex items-center gap-2 relative md:static md:ml-auto">
-          <button onClick={() => setShowCart(!showCart)} className="relative z-10">
-            <ShoppingCart size={24} />
-            <span className="absolute -top-2 -right-2 bg-white text-black rounded-full px-2 py-0.5 text-xs font-bold select-none">
-              {cartItems.length}
-            </span>
-          </button>
-          {showCart && (
-            <div className="absolute right-0 top-full mt-4 w-80 max-h-[70vh] overflow-y-auto bg-white text-black rounded-lg shadow-xl p-4 z-50 border border-gray-300">
-              <h3 className="text-lg font-semibold mb-2">Καλάθι Αγορών</h3>
-              {cartItems.length === 0 ? (
-                <p className="text-sm">Το καλάθι σας είναι άδειο.</p>
-              ) : (
-                <ul className="space-y-2">
-                  {cartItems.map((item, index) => (
-                    <li key={index} className="flex justify-between items-center border-b border-gray-200 pb-2">
-                      <div>
-                        <p className="font-medium">{item.name}</p>
-                        <p className="text-sm">Ποσότητα: {item.qty}</p>
-                      </div>
-                      <div className="flex items-center gap-2">
-                        <button
-                          onClick={() => handleQtyChange(index, -1)}
-                          className="px-2 py-1 bg-gray-200 rounded hover:bg-gray-300 transition"
-                        >
-                          -
-                        </button>
-                        <button
-                          onClick={() => handleQtyChange(index, 1)}
-                          className="px-2 py-1 bg-gray-200 rounded"
-                        >
-                          +
-                        </button>
-                        <button
-                          onClick={() => handleRemove(index)}
-                          className="text-red-500 font-bold text-xl hover:text-red-700 transition"
-                        >
-                          ×
-                        </button>
-                      </div>
-                    </li>
-                  ))}
-                </ul>
-              )}
-              {cartItems.length > 0 && (
-                <div className="mt-4">
-                  <p className="font-bold">Σύνολο: {cartItems.reduce((acc, item) => acc + item.qty * item.price, 0)}€</p>
-                  <button
-                    onClick={() => setActiveSection("Καλάθι Αγορών")}
-                    className="mt-2 w-full bg-black text-white py-2 rounded hover:bg-zinc-800 transition font-medium"
-                  >
-                    Προβολή Καλαθιού
-                  </button>
-                </div>
-              )}
-            </div>
-          )}
+        {/* Auth buttons - hidden on mobile when menu is closed */}
+        <div className={`${showMobileMenu ? 'flex' : 'hidden'} md:flex flex-col md:flex-row items-center gap-2 md:absolute md:top-6 md:right-16 md:right-20`}>
+          {renderAuthButtons()}
         </div>
+
+        {/* Cart button - desktop */}
+        <div className="hidden md:flex items-center gap-2 relative">
+          <button onClick={() => setShowCart(!showCart)} className="relative">
+            <ShoppingCart size={24} />
+            {cartItems.length > 0 && (
+              <span className="absolute -top-2 -right-2 bg-white text-black rounded-full px-2 py-0.5 text-xs font-bold select-none">
+                {cartItems.length}
+              </span>
+            )}
+          </button>
+        </div>
+
+        {/* Cart dropdown */}
+        {showCart && (
+          <div className="absolute right-0 top-full mt-2 w-full md:w-80 max-h-[70vh] overflow-y-auto bg-white text-black rounded-lg shadow-xl p-4 z-50 border border-gray-300">
+            <h3 className="text-lg font-semibold mb-2">Καλάθι Αγορών</h3>
+            {cartItems.length === 0 ? (
+              <p className="text-sm">Το καλάθι σας είναι άδειο.</p>
+            ) : (
+              <ul className="space-y-2">
+                {cartItems.map((item, index) => (
+                  <li key={index} className="flex justify-between items-center border-b border-gray-200 pb-2">
+                    <div>
+                      <p className="font-medium">{item.name}</p>
+                      <p className="text-sm">Ποσότητα: {item.qty}</p>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <button
+                        onClick={() => handleQtyChange(index, -1)}
+                        className="px-2 py-1 bg-gray-200 rounded hover:bg-gray-300 transition"
+                      >
+                        -
+                      </button>
+                      <button
+                        onClick={() => handleQtyChange(index, 1)}
+                        className="px-2 py-1 bg-gray-200 rounded"
+                      >
+                        +
+                      </button>
+                      <button
+                        onClick={() => handleRemove(index)}
+                        className="text-red-500 font-bold text-xl hover:text-red-700 transition"
+                      >
+                        ×
+                      </button>
+                    </div>
+                  </li>
+                ))}
+              </ul>
+            )}
+            {cartItems.length > 0 && (
+              <div className="mt-4">
+                <p className="font-bold">Σύνολο: {cartItems.reduce((acc, item) => acc + item.qty * item.price, 0)}€</p>
+                <button
+                  onClick={() => setActiveSection("Καλάθι Αγορών")}
+                  className="mt-2 w-full bg-black text-white py-2 rounded hover:bg-zinc-800 transition font-medium"
+                >
+                  Προβολή Καλαθιού
+                </button>
+              </div>
+            )}
+          </div>
+        )}
       </header>
 
       {/* Categories Bar */}
