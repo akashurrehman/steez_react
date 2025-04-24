@@ -80,11 +80,8 @@ const Home = () => {
       />
     );
   }
-
-
-
   const renderAuthButtons = () => (
-    <div className="absolute top-6 right-16 md:right-20 flex items-center gap-2">
+    <div className="flex items-center gap-2">
       {user ? (
         <>
           {isGuest && (
@@ -261,20 +258,18 @@ const Home = () => {
 
   return (
     <div className="bg-black text-white min-h-screen font-sans scrollbar-thin scrollbar-thumb-zinc-700 scrollbar-track-zinc-900 overflow-y-scroll">
-      <header className="flex flex-col md:flex-row items-center justify-between px-4 py-4 bg-black border-b border-zinc-800 relative gap-4">
+      <header className="flex flex-col md:flex-row items-center justify-between px-4 py-4 bg-black border-b border-zinc-800 gap-4">
         {/* Logo - centered on mobile, left on desktop */}
-        <div className="w-full md:w-auto flex justify-center md:justify-start">
           <img
-            src="src/steez.png"
+            src="steez.png"
             alt="STEEZ.GR Logo"
-            className="h-12 md:h-24 w-auto cursor-pointer"
+            className="h-24 md:h-28 w-auto cursor-pointer"
             onClick={() => {
               setActiveSection("Αρχική Σελίδα");
               setSearchTerm("");
               setActiveBrand(null);
             }}
           />
-        </div>
 
         {/* Mobile menu button - only shows on small screens */}
         <div className="md:hidden flex items-center justify-between w-full">
@@ -305,7 +300,7 @@ const Home = () => {
         </div>
 
         {/* Navigation - hidden on mobile when menu is closed */}
-        <nav className={`${showMobileMenu ? 'flex' : 'hidden'} md:flex flex-col md:flex-row items-center w-full md:w-auto md:absolute md:left-1/2 md:transform md:-translate-x-1/2 gap-2 md:gap-4 text-sm md:text-base font-medium uppercase`}>
+        <nav className={`${showMobileMenu ? 'flex' : 'hidden'} md:flex items-center gap-2 md:gap-4 text-sm md:text-base font-medium uppercase`}>
           {["Αρχική Σελίδα", "Προϊόντα", "Επικοινωνία", "Αναζήτηση Δέματος"].map(
             (key) => (
               <button
@@ -315,7 +310,7 @@ const Home = () => {
                   setActiveBrand(null);
                   setShowMobileMenu(false);
                 }}
-                className={`w-full md:w-auto px-4 py-2 rounded-lg border border-white/20 hover:bg-white hover:text-black transition ${activeSection === key ? "bg-white text-black" : "bg-zinc-800 text-white"
+                className={`px-4 py-2 rounded-lg border border-white/20 hover:bg-white hover:text-black transition ${activeSection === key ? "bg-white text-black" : "bg-zinc-800 text-white"
                   }`}
               >
                 {key.charAt(0).toUpperCase() + key.slice(1)}
@@ -328,7 +323,7 @@ const Home = () => {
                 setActiveSection("Προφίλ");
                 setShowMobileMenu(false);
               }}
-              className={`w-full md:w-auto px-4 py-2 rounded-lg border border-white/20 hover:bg-white hover:text-black transition ${activeSection === "Προφίλ" ? "bg-white text-black" : "bg-zinc-800 text-white"
+              className={`px-4 py-2 rounded-lg border border-white/20 hover:bg-white hover:text-black transition ${activeSection === "Προφίλ" ? "bg-white text-black" : "bg-zinc-800 text-white"
                 }`}
             >
               Προφίλ
@@ -340,7 +335,7 @@ const Home = () => {
                 setActiveSection("Admin");
                 setShowMobileMenu(false);
               }}
-              className={`w-full md:w-auto px-4 py-2 rounded-lg border border-white/20 hover:bg-white hover:text-black transition ${activeSection === "Admin" ? "bg-white text-black" : "bg-zinc-800 text-white"
+              className={`px-4 py-2 rounded-lg border border-white/20 hover:bg-white hover:text-black transition ${activeSection === "Admin" ? "bg-white text-black" : "bg-zinc-800 text-white"
                 }`}
             >
               Admin
@@ -348,21 +343,24 @@ const Home = () => {
           )}
         </nav>
 
-        {/* Auth buttons - hidden on mobile when menu is closed */}
-        <div className={`${showMobileMenu ? 'flex' : 'hidden'} md:flex flex-col md:flex-row items-center gap-2 md:absolute md:top-6 md:right-16 md:right-20`}>
-          {renderAuthButtons()}
-        </div>
+        {/* Right side buttons (auth + cart) */}
+        <div className={`${showMobileMenu ? 'flex' : 'hidden'} md:flex items-center gap-4`}>
+          {/* Auth buttons */}
+          <div className="flex items-center gap-2">
+            {renderAuthButtons()}
+          </div>
 
-        {/* Cart button - desktop */}
-        <div className="hidden md:flex items-center gap-2 relative">
-          <button onClick={() => setShowCart(!showCart)} className="relative">
-            <ShoppingCart size={24} />
-            {cartItems.length > 0 && (
-              <span className="absolute -top-2 -right-2 bg-white text-black rounded-full px-2 py-0.5 text-xs font-bold select-none">
-                {cartItems.length}
-              </span>
-            )}
-          </button>
+          {/* Cart button - desktop */}
+          <div className="relative">
+            <button onClick={() => setShowCart(!showCart)} className="relative">
+              <ShoppingCart size={24} />
+              {cartItems.length > 0 && (
+                <span className="absolute -top-2 -right-2 bg-white text-black rounded-full px-2 py-0.5 text-xs font-bold select-none">
+                  {cartItems.length}
+                </span>
+              )}
+            </button>
+          </div>
         </div>
 
         {/* Cart dropdown */}
@@ -407,7 +405,11 @@ const Home = () => {
               <div className="mt-4">
                 <p className="font-bold">Σύνολο: {cartItems.reduce((acc, item) => acc + item.qty * item.price, 0)}€</p>
                 <button
-                  onClick={() => setActiveSection("Καλάθι Αγορών")}
+                  onClick={() => {
+                    setActiveSection("Καλάθι Αγορών");
+                    setShowCart(false);
+                    setShowMobileMenu(false);
+                  }}
                   className="mt-2 w-full bg-black text-white py-2 rounded hover:bg-zinc-800 transition font-medium"
                 >
                   Προβολή Καλαθιού
