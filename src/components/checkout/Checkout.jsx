@@ -131,6 +131,7 @@ const CheckoutForm = ({ cartItems, setCartItems, setActiveSection, formData, set
           <div className="mt-4 p-4 bg-zinc-800 rounded border border-zinc-700">
             <CardElement 
               options={{
+                hidePostalCode: true,
                 style: {
                   base: {
                     fontSize: '16px',

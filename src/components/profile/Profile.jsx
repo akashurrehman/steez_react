@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import { getUserProfile, updateUserProfile, getMyOrders } from "../../api";
 import { useAuth } from "../../context/AuthContext";
 
-const Profile = () => {
+const Profile = ({setActiveSection}) => {
   const { user, isGuest } = useAuth();
   const [userData, setUserData] = useState(null);
   const [formData, setFormData] = useState({
@@ -21,7 +21,7 @@ const Profile = () => {
     const fetchUserData = async () => {
       try {
         setLoading(true);
-        
+
         if (isGuest) {
           // For guest users, use minimal data
           setUserData({
@@ -46,11 +46,11 @@ const Profile = () => {
             address: userResponse.data.address || "",
             phone: userResponse.data.phone || ""
           });
-          
+
           const ordersResponse = await getMyOrders();
           setOrders(ordersResponse.data);
         }
-        
+
         setLoading(false);
       } catch (error) {
         console.error("Error fetching user data:", error);
@@ -58,7 +58,7 @@ const Profile = () => {
         setLoading(false);
       }
     };
-    
+
     fetchUserData();
   }, [isGuest]);
 
@@ -71,7 +71,7 @@ const Profile = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    
+
     if (isGuest) {
       setError("Οι επισκέπτες δεν μπορούν να ενημερώσουν το προφίλ. Παρακαλώ εγγραφείτε.");
       return;
@@ -79,7 +79,7 @@ const Profile = () => {
 
     setUpdateSuccess(false);
     setError("");
-    
+
     try {
       setUpdateLoading(true);
       await updateUserProfile(formData);
@@ -88,7 +88,7 @@ const Profile = () => {
     } catch (error) {
       setUpdateLoading(false);
       setError(
-        error.response?.data?.message || 
+        error.response?.data?.message ||
         "Παρουσιάστηκε σφάλμα κατά την ενημέρωση του προφίλ"
       );
     }
@@ -104,10 +104,18 @@ const Profile = () => {
 
   return (
     <div className="min-h-screen bg-black text-white px-4 py-10 md:px-20">
+
+<button
+        onClick={() => setActiveSection("Αρχική Σελίδα")}
+        className="inline-flex items-center gap-2 text-sm px-4 py-2 border border-white/30 rounded-full hover:bg-white hover:text-black transition mb-8"
+      >
+        <span className="text-lg">←</span> Πίσω στην Αρχική Σελίδα
+      </button>
+
       <h1 className="text-4xl font-bold mb-8 text-center uppercase">
         {isGuest ? "Guest Mode" : "Το Προφίλ μου"}
       </h1>
-      
+
       <div className="max-w-4xl mx-auto">
         <div className="mb-8 flex border-b border-zinc-700">
           <button
@@ -125,7 +133,7 @@ const Profile = () => {
             </button>
           )}
         </div>
-        
+
         {activeTab === "profile" && (
           <div className="bg-zinc-900 p-6 rounded-xl shadow-md">
             <div className="mb-6">
@@ -133,19 +141,19 @@ const Profile = () => {
               <p><strong>Username:</strong> {userData?.username || "Guest"}</p>
               <p><strong>Email:</strong> {userData?.email || "guest@example.com"}</p>
             </div>
-            
+
             {error && (
               <div className="mb-4 p-3 bg-red-900/50 border border-red-500 rounded text-center">
                 {error}
               </div>
             )}
-            
+
             {updateSuccess && (
               <div className="mb-4 p-3 bg-green-900/50 border border-green-500 rounded text-center">
                 Το προφίλ σας ενημερώθηκε με επιτυχία!
               </div>
             )}
-            
+
             <form onSubmit={handleSubmit} className="space-y-4">
               <div>
                 <label className="block mb-1">Ονοματεπώνυμο</label>
@@ -158,7 +166,7 @@ const Profile = () => {
                   disabled={isGuest}
                 />
               </div>
-              
+
               <div>
                 <label className="block mb-1">Διεύθυνση</label>
                 <textarea
@@ -170,7 +178,7 @@ const Profile = () => {
                   disabled={isGuest}
                 ></textarea>
               </div>
-              
+
               <div>
                 <label className="block mb-1">Τηλέφωνο</label>
                 <input
@@ -182,7 +190,7 @@ const Profile = () => {
                   disabled={isGuest}
                 />
               </div>
-              
+
               {!isGuest && (
                 <button
                   type="submit"
@@ -213,11 +221,11 @@ const Profile = () => {
             )}
           </div>
         )}
-        
+
         {activeTab === "orders" && !isGuest && (
           <div className="bg-zinc-900 p-6 rounded-xl shadow-md">
             <h2 className="text-2xl font-semibold mb-6">Οι Παραγγελίες μου</h2>
-            
+
             {orders.length === 0 ? (
               <p className="text-gray-400 text-center py-4">Δεν έχετε κάνει καμία παραγγελία ακόμα.</p>
             ) : (
@@ -231,20 +239,19 @@ const Profile = () => {
                       </div>
                       <div className="text-right">
                         <p className="font-bold">{order.total_amount}€</p>
-                        <span className={`inline-block px-2 py-1 text-xs rounded ${
-                          order.status === 'delivered' ? 'bg-green-900 text-green-200' :
-                          order.status === 'cancelled' ? 'bg-red-900 text-red-200' :
-                          'bg-yellow-900 text-yellow-200'
-                        }`}>
+                        <span className={`inline-block px-2 py-1 text-xs rounded ${order.status === 'delivered' ? 'bg-green-900 text-green-200' :
+                            order.status === 'cancelled' ? 'bg-red-900 text-red-200' :
+                              'bg-yellow-900 text-yellow-200'
+                          }`}>
                           {order.status === 'pending' ? 'Σε αναμονή' :
-                           order.status === 'processing' ? 'Σε επεξεργασία' :
-                           order.status === 'shipped' ? 'Απεστάλη' :
-                           order.status === 'delivered' ? 'Παραδόθηκε' :
-                           'Ακυρώθηκε'}
+                            order.status === 'processing' ? 'Σε επεξεργασία' :
+                              order.status === 'shipped' ? 'Απεστάλη' :
+                                order.status === 'delivered' ? 'Παραδόθηκε' :
+                                  'Ακυρώθηκε'}
                         </span>
                       </div>
                     </div>
-                    
+
                     <div className="border-t border-zinc-700 pt-3">
                       <p className="font-medium mb-2">Προϊόντα:</p>
                       <ul className="space-y-2">
@@ -252,9 +259,9 @@ const Profile = () => {
                           <li key={item.id} className="flex justify-between">
                             <div className="flex items-center gap-2">
                               {item.image_url && (
-                                <img 
-                                  src={`https://steez-shop-backend.onrender.com${item.image_url}`} 
-                                  alt={item.name} 
+                                <img
+                                  src={`https://steez-shop-backend.onrender.com${item.image_url}`}
+                                  alt={item.name}
                                   className="w-10 h-10 object-cover rounded"
                                 />
                               )}
@@ -265,7 +272,7 @@ const Profile = () => {
                         ))}
                       </ul>
                     </div>
-                    
+
                     <div className="mt-3 pt-3 border-t border-zinc-700">
                       <p><strong>Διεύθυνση Παράδοσης:</strong> {order.shipping_address}</p>
                       <p><strong>Τηλέφωνο Επικοινωνίας:</strong> {order.contact_phone}</p>

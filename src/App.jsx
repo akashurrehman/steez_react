@@ -10,9 +10,9 @@ import { useAuth } from './context/AuthContext';
 import Login from '@/components/auth/Login';
 import Register from '@/components/auth/Register';
 
-const Home = () => {  
+const Home = () => {
   const { user, isGuest, logout, guestLogin } = useAuth();
-  
+
   const [authMode, setAuthMode] = useState(null); // 'login' or 'register'
 
   // Cart state
@@ -26,7 +26,7 @@ const Home = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const [activeBrand, setActiveBrand] = useState(null);
   const [selectedProduct, setSelectedProduct] = useState(null);
-  
+
   const [categories, setCategories] = useState([]);
   const [brands, setBrands] = useState([]);
   const [products, setProducts] = useState([]);
@@ -34,45 +34,45 @@ const Home = () => {
   const [error, setError] = useState(null);
   const [showBrands, setShowBrands] = useState(false);
 
-    // Save cart to localStorage
-    useEffect(() => {
-      localStorage.setItem('cartItems', JSON.stringify(cartItems));
-    }, [cartItems]);
-  
-    // Fetch data from API
-    useEffect(() => {
-      const fetchData = async () => {
-        try {
-          setLoading(true);
-          const [productsRes, categoriesRes, brandsRes] = await Promise.all([
-            getProducts(),
-            getCategories(),
-            getBrands()
-          ]);
-          
-          setProducts(productsRes.data);
-          setCategories(categoriesRes.data.map(c => c.name));
-          setBrands(brandsRes.data.map(b => b.name));
-          setLoading(false);
-        } catch (error) {
-          console.error("Error fetching data:", error);
-          setError("Παρουσιάστηκε σφάλμα κατά τη φόρτωση δεδομένων");
-          setLoading(false);
-        }
-      };
-      
-      fetchData();
-    }, []);
+  // Save cart to localStorage
+  useEffect(() => {
+    localStorage.setItem('cartItems', JSON.stringify(cartItems));
+  }, [cartItems]);
+
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        setLoading(true);
+        const [productsRes, categoriesRes, brandsRes] = await Promise.all([
+          getProducts(),
+          getCategories(),
+          getBrands()
+        ]);
+
+        setProducts(productsRes.data);
+        // Make sure this matches the category_name in products
+        setCategories(categoriesRes.data.map(c => c.name));
+        setBrands(brandsRes.data.map(b => b.name));
+        setLoading(false);
+      } catch (error) {
+        console.error("Error fetching data:", error);
+        setError("Παρουσιάστηκε σφάλμα κατά τη φόρτωση δεδομένων");
+        setLoading(false);
+      }
+    };
+
+    fetchData();
+  }, []);
 
   if (authMode) {
     return authMode === 'login' ? (
-      <Login 
+      <Login
         onLogin={() => setAuthMode(null)}
         onSwitchToRegister={() => setAuthMode('register')}
         onClose={() => setAuthMode(null)}
       />
     ) : (
-      <Register 
+      <Register
         onRegister={() => setAuthMode(null)}
         onSwitchToLogin={() => setAuthMode('login')}
         onClose={() => setAuthMode(null)}
@@ -83,66 +83,80 @@ const Home = () => {
 
 
   const renderAuthButtons = () => (
-  <div className="absolute top-6 right-16 md:right-20 flex items-center gap-2">
-    {user ? (
-      <>
-        {isGuest && (
-          <span className="text-sm text-gray-400">Guest</span>
-        )}
-        <button
-          onClick={() => setActiveSection("Προφίλ")}
-          className="text-sm px-3 py-1 rounded border border-white/20 hover:bg-white hover:text-black transition"
-        >
-          {isGuest ? "Guest" : "Προφίλ"}
-        </button>
-        <button
-          onClick={() => {
-            logout();
-            setActiveSection("Αρχική Σελίδα");
-          }}
-          className="text-sm px-3 py-1 rounded border border-white/20 hover:bg-white hover:text-black transition"
-        >
-          {isGuest ? "Exit Guest" : "Αποσύνδεση"}
-        </button>
-      </>
-    ) : (
-      <>
-        <button
-          onClick={() => setAuthMode('login')}
-          className="text-sm px-3 py-1 rounded border border-white/20 hover:bg-white hover:text-black transition"
-        >
-          Σύνδεση
-        </button>
-        <button
-          onClick={() => setAuthMode('register')}
-          className="text-sm px-3 py-1 rounded border border-white/20 hover:bg-white hover:text-black transition"
-        >
-          Εγγραφή
-        </button>
-        <button
-          onClick={guestLogin}
-          className="text-sm px-3 py-1 rounded border border-white/20 hover:bg-white hover:text-black transition"
-        >
-          Guest
-        </button>
-      </>
-    )}
-  </div>
-);
+    <div className="absolute top-6 right-16 md:right-20 flex items-center gap-2">
+      {user ? (
+        <>
+          {isGuest && (
+            <span className="text-sm text-gray-400">Guest</span>
+          )}
+          <button
+            onClick={() => setActiveSection("Προφίλ")}
+            className="text-sm px-3 py-1 rounded border border-white/20 hover:bg-white hover:text-black transition"
+          >
+            {isGuest ? "Guest" : "Προφίλ"}
+          </button>
+          <button
+            onClick={() => {
+              logout();
+              setActiveSection("Αρχική Σελίδα");
+            }}
+            className="text-sm px-3 py-1 rounded border border-white/20 hover:bg-white hover:text-black transition"
+          >
+            {isGuest ? "Exit Guest" : "Αποσύνδεση"}
+          </button>
+        </>
+      ) : (
+        <>
+          <button
+            onClick={() => setAuthMode('login')}
+            className="text-sm px-3 py-1 rounded border border-white/20 hover:bg-white hover:text-black transition"
+          >
+            Σύνδεση
+          </button>
+          <button
+            onClick={() => setAuthMode('register')}
+            className="text-sm px-3 py-1 rounded border border-white/20 hover:bg-white hover:text-black transition"
+          >
+            Εγγραφή
+          </button>
+          <button
+            onClick={guestLogin}
+            className="text-sm px-3 py-1 rounded border border-white/20 hover:bg-white hover:text-black transition"
+          >
+            Guest
+          </button>
+        </>
+      )}
+    </div>
+  );
 
   const showProfileOption = !!user;
 
-  console.log("Userrole:",user);
+  console.log("Userrole:", user);
 
   const isAdmin = user?.role === 'admin' || user?.email === 'admin@gmail.com';
-  console.log("isAdmin:",isAdmin);
+  console.log("isAdmin:", isAdmin);
 
-  // Filter products by category or search term
+  console.log("PRrooducts:", products);
+
   const filteredProducts = products.filter((product) => {
-    if (activeBrand) {
-      return product.brand === activeBrand;
+    // Filter by brand if activeBrand is set
+    if (activeBrand && product.brand_name !== activeBrand) {
+      return false;
     }
-    return product.category === searchTerm || product.name.toLowerCase().includes(searchTerm.toLowerCase());
+
+    // Filter by category if searchTerm matches a category
+    if (searchTerm && categories.includes(searchTerm)) {
+      return product.category_name === searchTerm;
+    }
+
+    // Filter by search term if it's not a category
+    if (searchTerm && !categories.includes(searchTerm)) {
+      return product.name.toLowerCase().includes(searchTerm.toLowerCase());
+    }
+
+    // If no filters are active, show all products
+    return true;
   });
 
   const handleQtyChange = (index, delta, event) => {
@@ -163,8 +177,8 @@ const Home = () => {
   };
 
   // Profile section
-  if (activeSection === "Προφίλ" && !isAdmin) {
-    return <Profile />;
+  if (activeSection === "Προφίλ") {
+    return <Profile setActiveSection={setActiveSection} />;
   }
 
   // Checkout section
@@ -252,7 +266,11 @@ const Home = () => {
           src="src/steez.png"
           alt="STEEZ.GR Logo"
           className="h-20 w-auto scale-[3] origin-left cursor-pointer z-10"
-          onClick={() => window.location.reload()}
+          onClick={() => {
+            setActiveSection("Αρχική Σελίδα");
+            setSearchTerm("");
+            setActiveBrand(null);
+          }}
         />
         <nav className="w-full flex justify-center md:justify-center md:absolute md:left-1/2 md:transform md:-translate-x-1/2 mt-4 md:mt-0 gap-4 text-sm md:text-base font-medium uppercase">
           {["Αρχική Σελίδα", "Προϊόντα", "Επικοινωνία", "Αναζήτηση Δέματος"].map(
@@ -263,9 +281,8 @@ const Home = () => {
                   setActiveSection(key);
                   setActiveBrand(null);
                 }}
-                className={`px-4 py-2 rounded-lg border border-white/20 hover:bg-white hover:text-black transition ${
-                  activeSection === key ? "bg-white text-black" : "bg-zinc-800 text-white"
-                }`}
+                className={`px-4 py-2 rounded-lg border border-white/20 hover:bg-white hover:text-black transition ${activeSection === key ? "bg-white text-black" : "bg-zinc-800 text-white"
+                  }`}
               >
                 {key.charAt(0).toUpperCase() + key.slice(1)}
               </button>
@@ -274,9 +291,8 @@ const Home = () => {
           {showProfileOption && (
             <button
               onClick={() => setActiveSection("Προφίλ")}
-              className={`px-4 py-2 rounded-lg border border-white/20 hover:bg-white hover:text-black transition ${
-                activeSection === "Προφίλ" ? "bg-white text-black" : "bg-zinc-800 text-white"
-              }`}
+              className={`px-4 py-2 rounded-lg border border-white/20 hover:bg-white hover:text-black transition ${activeSection === "Προφίλ" ? "bg-white text-black" : "bg-zinc-800 text-white"
+                }`}
             >
               Προφίλ
             </button>
@@ -284,18 +300,17 @@ const Home = () => {
           {isAdmin && (
             <button
               onClick={() => setActiveSection("Admin")}
-              className={`px-4 py-2 rounded-lg border border-white/20 hover:bg-white hover:text-black transition ${
-                activeSection === "Admin" ? "bg-white text-black" : "bg-zinc-800 text-white"
-              }`}
+              className={`px-4 py-2 rounded-lg border border-white/20 hover:bg-white hover:text-black transition ${activeSection === "Admin" ? "bg-white text-black" : "bg-zinc-800 text-white"
+                }`}
             >
               Admin
             </button>
           )}
         </nav>
-        
+
         {/* Auth buttons */}
         {renderAuthButtons()}
-        
+
         {/* Cart button */}
         <div className="absolute top-6 right-6 flex items-center gap-2 relative md:static md:ml-auto">
           <button onClick={() => setShowCart(!showCart)} className="relative z-10">
@@ -365,7 +380,8 @@ const Home = () => {
               {categories.map((category) => (
                 <div key={category} className="w-1/3 sm:w-1/5 mb-2">
                   <button
-                    onClick={() => {
+                    onClick={(e) => {
+                      e.preventDefault(); // Add this line
                       setSearchTerm(category);
                       setActiveBrand(null);
                     }}
@@ -410,7 +426,7 @@ const Home = () => {
           <h2 className="text-4xl md:text-5xl font-bold text-center mb-10 uppercase tracking-widest flex items-center justify-center gap-2">
             {activeBrand ? `${activeBrand}` : <> <Flame className="text-red-500" />FEATURED</>}
           </h2>
-          
+
           {loading ? (
             <div className="text-center py-20">
               <p className="text-xl">Φόρτωση προϊόντων...</p>
@@ -444,6 +460,8 @@ const Home = () => {
                       src={product.image_url ? `https://steez-shop-backend.onrender.com${product.image_url}` : `https://via.placeholder.com/400x500?text=${encodeURIComponent(product.name)}`}
                       alt={product.name}
                       className="w-full rounded-xl"
+                      loading="lazy" // Add lazy loading
+
                     />
                     <div className="mt-4">
                       <h3 className="text-xl font-semibold text-white">{product.name}</h3>
@@ -456,12 +474,12 @@ const Home = () => {
                             if (existing) {
                               return prev.map((p) => (p.id === product.id ? { ...p, qty: p.qty + 1 } : p));
                             }
-                            return [...prev, { 
-                              id: product.id, 
-                              name: product.name, 
-                              price: product.price, 
+                            return [...prev, {
+                              id: product.id,
+                              name: product.name,
+                              price: product.price,
                               image: product.image_url ? `https://steez-shop-backend.onrender.com${product.image_url}` : null,
-                              qty: 1 
+                              qty: 1
                             }];
                           });
                           setShowCart(true);
@@ -501,6 +519,8 @@ const Home = () => {
               src={selectedProduct.image}
               alt={selectedProduct.name}
               className="w-full h-48 object-cover rounded-md"
+              loading="lazy" // Add lazy loading
+
             />
 
             <h3 className="text-xl font-semibold mt-4">{selectedProduct.name}</h3>
@@ -516,12 +536,12 @@ const Home = () => {
                   if (existing) {
                     return prev.map((p) => (p.id === selectedProduct.id ? { ...p, qty: p.qty + 1 } : p));
                   }
-                  return [...prev, { 
-                    id: selectedProduct.id, 
-                    name: selectedProduct.name, 
-                    price: selectedProduct.price, 
+                  return [...prev, {
+                    id: selectedProduct.id,
+                    name: selectedProduct.name,
+                    price: selectedProduct.price,
                     image: selectedProduct.image,
-                    qty: 1 
+                    qty: 1
                   }];
                 });
                 setShowCart(true);
