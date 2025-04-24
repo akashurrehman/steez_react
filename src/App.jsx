@@ -365,7 +365,7 @@ const Home = () => {
 
         {/* Cart dropdown */}
         {showCart && (
-          <div className="absolute right-0 top-full mt-2 w-full md:w-80 max-h-[70vh] overflow-y-auto bg-white text-black rounded-lg shadow-xl p-4 z-50 border border-gray-300">
+          <div className="absolute right-0 md:right-14 top-[20%] md:top-4 mt-2 w-full md:w-80 max-h-[70vh] overflow-y-auto bg-white text-black rounded-lg shadow-xl p-4 z-50 border border-gray-300">
             <h3 className="text-lg font-semibold mb-2">Καλάθι Αγορών</h3>
             {cartItems.length === 0 ? (
               <p className="text-sm">Το καλάθι σας είναι άδειο.</p>
