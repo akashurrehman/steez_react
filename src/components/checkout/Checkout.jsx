@@ -18,6 +18,13 @@ const CheckoutForm = ({ cartItems, setCartItems, setActiveSection, formData, set
       setError("Παρακαλώ συμπληρώστε όλα τα υποχρεωτικά πεδία");
       return;
     }
+
+    for (const item of cartItems) {
+      if (item.sizes && item.sizes.length > 0 && !item.size) {
+        setError(`Παρακαλώ επιλέξτε μέγεθος για το προϊόν ${item.name}`);
+        return;
+      }
+    }
     
     try {
       setLoading(true);
@@ -43,7 +50,8 @@ const CheckoutForm = ({ cartItems, setCartItems, setActiveSection, formData, set
         const orderData = {
           items: cartItems.map(item => ({
             product_id: item.id,
-            quantity: item.qty
+            quantity: item.qty,
+            size:item.size
           })),
           shipping_address: formData.shipping_address,
           contact_phone: formData.contact_phone,
@@ -59,7 +67,8 @@ const CheckoutForm = ({ cartItems, setCartItems, setActiveSection, formData, set
         const orderData = {
           items: cartItems.map(item => ({
             product_id: item.id,
-            quantity: item.qty
+            quantity: item.qty,
+            size:item.size
           })),
           shipping_address: formData.shipping_address,
           contact_phone: formData.contact_phone,
@@ -217,6 +226,7 @@ const Checkout = ({ cartItems, setCartItems, setActiveSection }) => {
                     <div>
                       <p className="font-medium">{item.name}</p>
                       <p className="text-sm text-gray-400">Ποσότητα: {item.qty}</p>
+                      <p className="text-sm text-gray-400">Μέγεθος: {item.size}</p>
                     </div>
                     <p>{item.price * item.qty}€</p>
                   </li>

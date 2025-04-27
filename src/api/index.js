@@ -1,5 +1,6 @@
 import axios from 'axios';
 
+//const API_URL = 'http://localhost:5000/api';
 const API_URL = 'https://steez-shop-backend.onrender.com/api';
 
 export const api = axios.create({
@@ -24,11 +25,9 @@ export const getProductById = (id) => api.get(`/products/${id}`);
 export const getProductsByCategory = (categoryId) => api.get(`/products?category=${categoryId}`);
 export const getProductsByBrand = (brandId) => api.get(`/products?brand=${brandId}`);
 
-// Update the createProduct API function:
 export const createProduct = (productData) => {
   const formData = new FormData();
   
-  // Append all fields with proper validation
   formData.append('name', productData.name);
   formData.append('description', productData.description);
   formData.append('price', productData.price.toString());
@@ -42,7 +41,10 @@ export const createProduct = (productData) => {
     formData.append('brand_id', productData.brand_id.toString());
   }
   
-  // Append image file if exists
+  if (productData.sizes && productData.sizes.length > 0) {
+    formData.append('sizes', JSON.stringify(productData.sizes));
+  }
+  
   if (productData.image) {
     formData.append('image', productData.image);
   }
@@ -69,6 +71,11 @@ export const updateProduct = (id, productData) => {
   
   if (productData.brand_id) {
     formData.append('brand_id', productData.brand_id.toString());
+  }
+  
+  // Append sizes if they exist
+  if (productData.sizes) {
+    formData.append('sizes', JSON.stringify(productData.sizes));
   }
   
   // Append new image file if exists

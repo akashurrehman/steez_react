@@ -48,6 +48,7 @@ const Profile = ({setActiveSection}) => {
           });
 
           const ordersResponse = await getMyOrders();
+          console.log("Orders response:",ordersResponse.data);
           setOrders(ordersResponse.data);
         }
 

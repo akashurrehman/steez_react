@@ -7,7 +7,10 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
-import { Trash2, Edit, Plus } from 'lucide-react';
+import { Trash2, Edit, Plus, X } from 'lucide-react';
+
+// Standard size options
+const SIZE_OPTIONS = ['XS', 'S', 'M', 'L', 'XL', 'XXL', 'XXXL'];
 
 const AdminProductManagement = () => {
     const { user } = useAuth();
@@ -28,8 +31,13 @@ const AdminProductManagement = () => {
         price: '',
         stock: '',
         category_id: '',
-        brand_id: ''
+        brand_id: '',
+        sizes: []
     });
+
+    // Size management state
+    const [newSize, setNewSize] = useState('');
+    const [sizeStock, setSizeStock] = useState('');
 
     // Fetch data on component mount
     useEffect(() => {
@@ -86,6 +94,26 @@ const AdminProductManagement = () => {
         }
     };
 
+    // Add a new size to the product
+    const handleAddSize = () => {
+        if (newSize && sizeStock && !formData.sizes.some(s => s.size === newSize)) {
+            setFormData(prev => ({
+                ...prev,
+                sizes: [...prev.sizes, { size: newSize, stock: parseInt(sizeStock) }]
+            }));
+            setNewSize('');
+            setSizeStock('');
+        }
+    };
+
+    // Remove a size from the product
+    const handleRemoveSize = (sizeToRemove) => {
+        setFormData(prev => ({
+            ...prev,
+            sizes: prev.sizes.filter(s => s.size !== sizeToRemove)
+        }));
+    };
+
     // Reset form
     const resetForm = () => {
         setFormData({
@@ -94,12 +122,15 @@ const AdminProductManagement = () => {
             price: '',
             stock: '',
             category_id: '',
-            brand_id: ''
+            brand_id: '',
+            sizes: []
         });
         setImagePreview(null);
         setImageFile(null);
         setIsEditing(false);
         setCurrentProduct(null);
+        setNewSize('');
+        setSizeStock('');
     };
 
     // Update the handleSubmit function for edit mode
@@ -118,6 +149,7 @@ const AdminProductManagement = () => {
                 stock: parseInt(formData.stock),
                 category_id: formData.category_id || null,
                 brand_id: formData.brand_id || null,
+                sizes: formData.sizes
             };
 
             // Only include image if it's a new file
@@ -127,9 +159,10 @@ const AdminProductManagement = () => {
 
             let response;
             if (isEditing && currentProduct) {
-                response = await updateProduct(currentProduct.id, productData);
+                console.log("Product data:",productData);
 
-                console.log("REESPONSE:",response.data)
+                response = await updateProduct(currentProduct.id, productData);
+                console.log("Response of data uploaidng:",response.data);
                 // Use the returned product data to update state
                 setProducts(products.map(p =>
                     p.id === currentProduct.id ? response.data.product : p
@@ -158,7 +191,8 @@ const AdminProductManagement = () => {
             price: product.price.toString(),
             stock: product.stock.toString(),
             category_id: product.category_id?.toString() || '',
-            brand_id: product.brand_id?.toString() || ''
+            brand_id: product.brand_id?.toString() || '',
+            sizes: product.sizes || []
         });
         if (product.image_url) {
             setImagePreview(`https://steez-shop-backend.onrender.com${product.image_url}`);
@@ -261,7 +295,7 @@ const AdminProductManagement = () => {
                                 </div>
 
                                 <div>
-                                    <Label htmlFor="stock">Stock Quantity</Label>
+                                    <Label htmlFor="stock">Default Stock Quantity</Label>
                                     <Input
                                         id="stock"
                                         name="stock"
@@ -277,6 +311,63 @@ const AdminProductManagement = () => {
                                         }}
                                         required
                                     />
+                                </div>
+
+                                {/* Size Management */}
+                                <div>
+                                    <Label>Product Sizes</Label>
+                                    <div className="space-y-2">
+                                        <div className="flex gap-2">
+                                            <Select
+                                                value={newSize}
+                                                onValueChange={setNewSize}
+                                            >
+                                                <SelectTrigger className="w-full bg-zinc-800 text-white border border-zinc-600">
+                                                    <SelectValue placeholder="Select size" />
+                                                </SelectTrigger>
+                                                <SelectContent className="bg-zinc-900 text-white">
+                                                    {SIZE_OPTIONS.map(size => (
+                                                        <SelectItem key={size} value={size}>
+                                                            {size}
+                                                        </SelectItem>
+                                                    ))}
+                                                </SelectContent>
+                                            </Select>
+                                            <Input
+                                                type="number"
+                                                min="0"
+                                                placeholder="Stock"
+                                                value={sizeStock}
+                                                onChange={(e) => setSizeStock(e.target.value)}
+                                                className="w-24"
+                                            />
+                                            <Button
+                                                type="button"
+                                                onClick={handleAddSize}
+                                                className="bg-white text-black hover:bg-gray-200"
+                                            >
+                                                <Plus className="h-4 w-4" />
+                                            </Button>
+                                        </div>
+
+                                        {/* Display selected sizes */}
+                                        <div className="space-y-1">
+                                            {formData.sizes.map((sizeObj, index) => (
+                                                <div key={index} className="flex items-center justify-between bg-zinc-800 p-2 rounded">
+                                                    <span className="font-medium">{sizeObj.size}: {sizeObj.stock}</span>
+                                                    <Button
+                                                        type="button"
+                                                        variant="ghost"
+                                                        size="icon"
+                                                        onClick={() => handleRemoveSize(sizeObj.size)}
+                                                        className="h-6 w-6 text-red-500 hover:bg-zinc-700"
+                                                    >
+                                                        <X className="h-4 w-4" />
+                                                    </Button>
+                                                </div>
+                                            ))}
+                                        </div>
+                                    </div>
                                 </div>
 
                                 <div>
@@ -369,6 +460,7 @@ const AdminProductManagement = () => {
                                             <TableHead>Name</TableHead>
                                             <TableHead>Price</TableHead>
                                             <TableHead>Stock</TableHead>
+                                            <TableHead>Sizes</TableHead>
                                             <TableHead>Actions</TableHead>
                                         </TableRow>
                                     </TableHeader>
@@ -388,6 +480,19 @@ const AdminProductManagement = () => {
                                                     <TableCell>{product.name}</TableCell>
                                                     <TableCell>${product.price}</TableCell>
                                                     <TableCell>{product.stock}</TableCell>
+                                                    <TableCell>
+                                                        {product.sizes?.length > 0 ? (
+                                                            <div className="flex flex-wrap gap-1">
+                                                                {product.sizes.map((size, i) => (
+                                                                    <span key={i} className="text-xs bg-zinc-700 px-2 py-1 rounded">
+                                                                        {size.size}: {size.stock}
+                                                                    </span>
+                                                                ))}
+                                                            </div>
+                                                        ) : (
+                                                            <span className="text-zinc-500">No sizes</span>
+                                                        )}
+                                                    </TableCell>
                                                     <TableCell>
                                                         <div className="flex gap-2">
                                                             <Button
@@ -410,7 +515,7 @@ const AdminProductManagement = () => {
                                             ))
                                         ) : (
                                             <TableRow>
-                                                <TableCell colSpan={5} className="text-center">
+                                                <TableCell colSpan={6} className="text-center">
                                                     No products found
                                                 </TableCell>
                                             </TableRow>
