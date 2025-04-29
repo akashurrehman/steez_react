@@ -1,7 +1,7 @@
 import axios from 'axios';
 
 //const API_URL = 'http://localhost:5000/api';
-const API_URL = 'http://51.21.248.18:5000/api';
+const API_URL = 'https://api.steez.gr/api';
 
 export const api = axios.create({
   baseURL: API_URL,
