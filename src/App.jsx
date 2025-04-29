@@ -484,7 +484,7 @@ const Home1 = () => {
                         id: product.id,
                         name: product.name,
                         price: product.price,
-                        image: product.image_url ? `https://steez-shop-backend.onrender.com${product.image_url}` : `https://via.placeholder.com/400x500?text=${encodeURIComponent(product.name)}`,
+                        image: product.image_url ? `http://51.21.248.18:5000${product.image_url}` : `https://via.placeholder.com/400x500?text=${encodeURIComponent(product.name)}`,
                         description: product.description,
                         sizes:product.sizes
                       });
@@ -493,7 +493,7 @@ const Home1 = () => {
                   >
                     <CardContent className="p-4">
                       <img
-                        src={product.image_url ? `https://steez-shop-backend.onrender.com${product.image_url}` : `https://via.placeholder.com/400x500?text=${encodeURIComponent(product.name)}`}
+                        src={product.image_url ? `http://51.21.248.18:5000${product.image_url}` : `https://via.placeholder.com/400x500?text=${encodeURIComponent(product.name)}`}
                         alt={product.name}
                         className="w-full rounded-xl"
                         loading="lazy"
@@ -513,7 +513,7 @@ const Home1 = () => {
                                 id: product.id,
                                 name: product.name,
                                 price: product.price,
-                                image: product.image_url ? `https://steez-shop-backend.onrender.com${product.image_url}` : null,
+                                image: product.image_url ? `http://51.21.248.18:5000${product.image_url}` : null,
                                 qty: 1,
                                 size: selectedSize, // Store selected size
                                 sizes: product.sizes // Store available sizes for validation

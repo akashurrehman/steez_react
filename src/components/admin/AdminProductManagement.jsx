@@ -153,7 +153,7 @@ const AdminProductManagement = () => {
             };
 
             // Only include image if it's a new file
-            if (imageFile && (!currentProduct || imagePreview !== `https://steez-shop-backend.onrender.com${currentProduct.image_url}`)) {
+            if (imageFile && (!currentProduct || imagePreview !== `http://51.21.248.18:5000${currentProduct.image_url}`)) {
                 productData.image = imageFile;
             }
 
@@ -195,7 +195,7 @@ const AdminProductManagement = () => {
             sizes: product.sizes || []
         });
         if (product.image_url) {
-            setImagePreview(`https://steez-shop-backend.onrender.com${product.image_url}`);
+            setImagePreview(`http://51.21.248.18:5000${product.image_url}`);
         } else {
             setImagePreview(null);
         }
@@ -471,7 +471,7 @@ const AdminProductManagement = () => {
                                                     <TableCell>
                                                         {product.image_url && (
                                                             <img
-                                                                src={`https://steez-shop-backend.onrender.com${product.image_url}`}
+                                                                src={`http://51.21.248.18:5000${product.image_url}`}
                                                                 alt={product.name}
                                                                 className="h-10 w-10 object-cover rounded-md"
                                                             />
