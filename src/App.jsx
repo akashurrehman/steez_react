@@ -25,6 +25,7 @@ const Home1 = () => {
   const [activeSection, setActiveSection] = useState("Αρχική Σελίδα");
   const [searchTerm, setSearchTerm] = useState("");
   const [activeBrand, setActiveBrand] = useState(null);
+  const [activeCategory, setActiveCategory] = useState(null);
   const [selectedProduct, setSelectedProduct] = useState(null);
   const [selectedSize, setSelectedSize] = useState(null);
   const [categories, setCategories] = useState([]);
@@ -33,7 +34,7 @@ const Home1 = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [showBrands, setShowBrands] = useState(false);
-
+  const [quantity, setQuantity] = useState(1);
   // Save cart to localStorage
   useEffect(() => {
     localStorage.setItem('cartItems', JSON.stringify(cartItems));
@@ -48,8 +49,8 @@ const Home1 = () => {
           getCategories(),
           getBrands()
         ]);
-        
-        console.log("Product response in fetch Data:",productsRes.data)
+
+        console.log("Product response in fetch Data:", productsRes.data)
         setProducts(productsRes.data);
         setCategories(categoriesRes.data.map(c => c.name));
         setBrands(brandsRes.data.map(b => b.name));
@@ -131,21 +132,32 @@ const Home1 = () => {
   const showProfileOption = !!user;
   const isAdmin = user?.role === 'admin' || user?.email === 'admin@gmail.com';
 
+  console.log("Products:",products);
+
   const filteredProducts = products.filter((product) => {
+    // Filter by active brand
     if (activeBrand && product.brand_name !== activeBrand) {
       return false;
     }
-
+  
+    // Filter by active category
+    if (activeCategory && product.category_name !== activeCategory) {
+      return false;
+    }
+  
+    // Filter by search term (category match)
     if (searchTerm && categories.includes(searchTerm)) {
       return product.category_name === searchTerm;
     }
-
+  
+    // Filter by search term (name match)
     if (searchTerm && !categories.includes(searchTerm)) {
       return product.name.toLowerCase().includes(searchTerm.toLowerCase());
     }
-
+  
     return true;
   });
+  
 
   const handleQtyChange = (index, delta, event) => {
     if (event) {
@@ -260,6 +272,7 @@ const Home1 = () => {
             setActiveSection("Αρχική Σελίδα");
             setSearchTerm("");
             setActiveBrand(null);
+            setActiveCategory(null);
           }}
         />
 
@@ -272,6 +285,8 @@ const Home1 = () => {
                 onClick={() => {
                   setActiveSection(key);
                   setActiveBrand(null);
+                  setActiveCategory(null);
+                  setSearchTerm("");
                 }}
                 className={`px-4 py-2 rounded-lg border border-white/20 hover:bg-white hover:text-black transition ${activeSection === key ? "bg-white text-black" : "bg-zinc-800 text-white"
                   }`}
@@ -390,6 +405,7 @@ const Home1 = () => {
             setActiveSection("Αρχική Σελίδα");
             setSearchTerm("");
             setActiveBrand(null);
+            setActiveCategory(null);
           }}
         />
         {/*         <div className="relative">
@@ -418,6 +434,8 @@ const Home1 = () => {
                         e.preventDefault();
                         setSearchTerm(category);
                         setActiveBrand(null);
+                        setActiveCategory(category);
+                        setActiveSection("Προϊόντα"); // Add this line
                       }}
                       className="w-full px-2 py-1 text-white hover:text-blue-400 transition focus:outline-none"
                     >
@@ -441,6 +459,7 @@ const Home1 = () => {
                       key={brand}
                       onClick={() => {
                         setActiveBrand(brand);
+                        setActiveCategory(null);
                         setShowBrands(false);
                       }}
                       className="text-left px-2 py-1 text-white hover:text-blue-400 focus:outline-none"
@@ -458,7 +477,17 @@ const Home1 = () => {
         {(activeSection === "Προϊόντα" || activeSection === "Αρχική Σελίδα") && (
           <section className="pt-16 pb-20 px-4 md:px-16">
             <h2 className="text-4xl md:text-5xl font-bold text-center mb-10 uppercase tracking-widest flex items-center justify-center gap-2">
-              {activeBrand ? `${activeBrand}` : <> <Flame className="text-red-500" />FEATURED</>}
+              {activeBrand ? (
+                activeBrand
+              ) : activeCategory ? (
+                activeCategory
+              ) : (
+                <>
+                  <Flame className="text-red-500" />
+                  FEATURED
+                </>
+              )}
+
             </h2>
 
             {loading ? (
@@ -475,61 +504,64 @@ const Home1 = () => {
               </div>
             ) : (
               <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 xl:grid-cols-5 gap-6">
-                {filteredProducts.map((product) => (
-                  <Card
-                    key={product.id}
-                    className="overflow-hidden shadow-lg hover:scale-105 transition-transform duration-300"
-                    onClick={() => {
-                      setSelectedProduct({
-                        id: product.id,
-                        name: product.name,
-                        price: product.price,
-                        image: product.image_url ? `https://api.steez.gr${product.image_url}` : `https://via.placeholder.com/400x500?text=${encodeURIComponent(product.name)}`,
-                        description: product.description,
-                        sizes:product.sizes
-                      });
-                      setActiveSection("ProductDetails");
-                    }}
-                  >
-                    <CardContent className="p-4">
-                      <img
-                        src={product.image_url ? `https://api.steez.gr${product.image_url}` : `https://via.placeholder.com/400x500?text=${encodeURIComponent(product.name)}`}
-                        alt={product.name}
-                        className="w-full rounded-xl"
-                        loading="lazy"
-                      />
-                      <div className="mt-4">
-                        <h3 className="text-xl font-semibold text-black">{product.name}</h3>
-                        <p className="text-gray-400 mt-1">{product.price}€</p>
-                        <Button
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            setCartItems((prev) => {
-                              const existing = prev.find((p) => p.id === product.id);
-                              if (existing) {
-                                return prev.map((p) => (p.id === product.id ? { ...p, qty: p.qty + 1 } : p));
-                              }
-                              return [...prev, {
-                                id: product.id,
-                                name: product.name,
-                                price: product.price,
-                                image: product.image_url ? `https://api.steez.gr${product.image_url}` : null,
-                                qty: 1,
-                                size: selectedSize, // Store selected size
-                                sizes: product.sizes // Store available sizes for validation
-                              }];
-                            });
-                            setShowCart(true);
-                          }}
-                          variant="ghost"
-                          className="mt-2 text-white flex items-center gap-2 hover:underline"
-                        >
-                          <ShoppingCart size={16} /> Προσθήκη στο Καλάθι
-                        </Button>
-                      </div>
-                    </CardContent>
-                  </Card>
-                ))}
+                {filteredProducts.map((product) => {
+                  // Parse sizes if they're stored as JSON string
+                  const sizes = typeof product.sizes === 'string' ? JSON.parse(product.sizes) : product.sizes || [];
+
+                  return (
+                    <Card
+                      key={product.id}
+                      className="overflow-hidden shadow-lg hover:scale-105 transition-transform duration-300 cursor-pointer"
+                      onClick={() => {
+                        setSelectedProduct({
+                          id: product.id,
+                          name: product.name,
+                          price: product.price,
+                          image: product.image_url ? `https://api.steez.gr${product.image_url}` : `https://via.placeholder.com/400x500?text=${encodeURIComponent(product.name)}`,
+                          description: product.description,
+                          sizes: sizes
+                        });
+                        setActiveSection("ProductDetails");
+                      }}
+                    >
+                      <CardContent className="relative">
+                        {/* Product Image */}
+                        <img
+                          src={product.image_url ? `https://api.steez.gr${product.image_url}` : `https://via.placeholder.com/400x500?text=${encodeURIComponent(product.name)}`}
+                          alt={product.name}
+                          className="w-full rounded-xl"
+                          loading="lazy"
+                        />
+
+                        {/* Product Info */}
+                        <div className="mt-1">
+                          <h3 className="text-xl font-semibold text-black">{product.name}</h3>
+                          <p className="text-gray-400 mt-1">{product.price}€</p>
+
+                          {/* Available Sizes */}
+                          {sizes.length > 0 && (
+                            <div className="mt-2">
+                              <div className="flex flex-wrap gap-1">
+                                {sizes.map((sizeObj, index) => (
+                                  <span
+                                    key={index}
+                                    className={`text-xs px-2 py-1 rounded ${sizeObj.stock > 0
+                                      ? 'bg-gray-100 text-gray-800 border border-gray-300'
+                                      : 'bg-gray-200 text-gray-400 line-through'
+                                      }`}
+                                  >
+                                    {sizeObj.size}
+                                  </span>
+                                ))}
+                              </div>
+                              <p className="text-xs text-gray-500 mt-1">Διαθέσιμα μεγέθη</p>
+                            </div>
+                          )}
+                        </div>
+                      </CardContent>
+                    </Card>
+                  );
+                })}
               </div>
             )}
           </section>
@@ -589,12 +621,12 @@ const Home1 = () => {
             ) : (
               <>
                 <button
-                  onClick={() => setActiveSection(products.length > 0 ? "Προϊόντα" : "Αρχική Σελίδα")}
+                  onClick={() => setActiveSection( "Αρχική Σελίδα")}
                   className="inline-flex items-center gap-2 text-sm px-4 py-2 border border-black/30 rounded-full hover:bg-black hover:text-white transition mb-8"
                 >
                   <span className="text-lg">←</span> Πίσω
                 </button>
-        
+
                 <div className="max-w-4xl mx-auto bg-white border border-black text-black rounded-xl p-6 md:p-8 shadow-md hover:shadow-lg">
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
                     <div className="flex justify-center">
@@ -616,7 +648,7 @@ const Home1 = () => {
                           {selectedProduct.description || "Δεν υπάρχει διαθέσιμη περιγραφή για αυτό το προϊόν."}
                         </p>
                       </div>
-        
+
                       {/* Size Selection */}
                       {selectedProduct.sizes && selectedProduct.sizes.length > 0 && (
                         <div className="mb-6">
@@ -636,7 +668,7 @@ const Home1 = () => {
                                 <label
                                   htmlFor={`size-${sizeObj.size}`}
                                   className={`px-4 py-2 border rounded-md cursor-pointer transition
-                                    ${sizeObj.stock <= 0 ? 
+                            ${sizeObj.stock <= 0 ?
                                       'bg-gray-100 text-gray-400 border-gray-300 cursor-not-allowed' :
                                       'border-black hover:bg-black hover:text-white peer-checked:bg-black peer-checked:text-white'
                                     }`}
@@ -652,44 +684,64 @@ const Home1 = () => {
                           )}
                         </div>
                       )}
-        
+
+                      {/* Quantity Selector */}
+                      <div className="mb-6">
+                        <h3 className="text-lg font-medium mb-3">Ποσότητα</h3>
+                        <div className="flex items-center gap-4">
+                          <button
+                            onClick={() => setQuantity(prev => Math.max(1, prev - 1))}
+                            className="w-10 h-10 flex items-center justify-center border border-black rounded-md hover:bg-gray-100 transition"
+                          >
+                            <span className="text-xl">-</span>
+                          </button>
+                          <span className="text-lg w-10 text-center">{quantity}</span>
+                          <button
+                            onClick={() => setQuantity(prev => prev + 1)}
+                            className="w-10 h-10 flex items-center justify-center border border-black rounded-md hover:bg-gray-100 transition"
+                          >
+                            <span className="text-xl">+</span>
+                          </button>
+                        </div>
+                      </div>
+
                       <Button
                         onClick={() => {
                           // Check if product has sizes and if a size is selected
                           if (selectedProduct.sizes?.length > 0 && !selectedSize) {
                             return;
                           }
-        
+
                           setCartItems((prev) => {
-                            const existing = prev.find((p) => 
-                              p.id === selectedProduct.id && 
+                            const existing = prev.find((p) =>
+                              p.id === selectedProduct.id &&
                               (!p.size || p.size === selectedSize)
                             );
-                            
+
                             if (existing) {
                               return prev.map((p) =>
-                                p.id === selectedProduct.id && 
-                                (!p.size || p.size === selectedSize) 
-                                  ? { ...p, qty: p.qty + 1 } 
+                                p.id === selectedProduct.id &&
+                                  (!p.size || p.size === selectedSize)
+                                  ? { ...p, qty: p.qty + quantity }
                                   : p
                               );
                             }
-                            
+
                             return [...prev, {
                               id: selectedProduct.id,
                               name: selectedProduct.name,
                               price: selectedProduct.price,
                               image: selectedProduct.image,
-                              qty: 1,
-                              size: selectedSize, // Store selected size
-                              sizes: selectedProduct.sizes // Store available sizes for validation
+                              qty: quantity, // Use the selected quantity
+                              size: selectedSize,
+                              sizes: selectedProduct.sizes
                             }];
                           });
                           setShowCart(true);
                         }}
                         className={`w-full py-3 rounded-lg transition font-medium text-lg
-                          ${selectedProduct.sizes?.length > 0 && !selectedSize 
-                            ? 'bg-gray-400 cursor-not-allowed' 
+                  ${selectedProduct.sizes?.length > 0 && !selectedSize
+                            ? 'bg-gray-400 cursor-not-allowed'
                             : 'bg-black text-white hover:bg-black-200'
                           }`}
                         disabled={selectedProduct.sizes?.length > 0 && !selectedSize}
@@ -714,6 +766,7 @@ const Home1 = () => {
               setActiveSection("Αρχική Σελίδα");
               setSearchTerm("");
               setActiveBrand(null);
+              setActiveCategory(null);
             }}
             className={`flex flex-col items-center ${activeSection === "Αρχική Σελίδα" ? "text-white" : "text-gray-400"}`}
           >

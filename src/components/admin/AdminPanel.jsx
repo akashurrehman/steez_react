@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { getUserProfile, updateUserProfile, getMyOrders } from "../../api";
 import AdminProductManagement from "./AdminProductManagement";
+import AdminOrders from "./AdminOrders";
 
 const AdminPanel = ({setActiveSection}) => {
 
@@ -106,6 +107,12 @@ const AdminPanel = ({setActiveSection}) => {
           >
             Product Management
           </button>
+          <button
+          onClick={() => setActiveTab('allorders')}
+          className={`px-4 py-2 ${activeTab === 'orders' ? 'border-b-2 border-white' : 'text-gray-400'}`}
+        >
+          Orders
+        </button>
           <button
             onClick={() => setActiveTab("orders")}
             className={`px-6 py-3 ${activeTab === "orders" ? "border-b-2 border-white font-bold" : "text-gray-400"}`}
@@ -242,6 +249,8 @@ const AdminPanel = ({setActiveSection}) => {
           </div>
         )}
         {activeTab === "products" && <AdminProductManagement />}
+        {activeTab === 'allorders' && <AdminOrders />}
+
       </div>
     </div>
   );

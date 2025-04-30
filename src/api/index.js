@@ -125,3 +125,9 @@ export const createOrder = async (orderData) => {
 
 export const getMyOrders = () => api.get('/orders/my-orders');
 export const getOrderById = (orderId) => api.get(`/orders/${orderId}`);
+
+// --------- ADMIN ORDERS ---------
+export const getAllOrders = (status = '') => api.get(`/orders/admin/all-orders${status ? `?status=${status}` : ''}`);
+
+export const updateOrderStatus = (orderId, status) => 
+  api.put(`/orders/admin/${orderId}/status`, { status });
