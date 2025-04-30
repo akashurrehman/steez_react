@@ -5,6 +5,8 @@ import { login, register, getUserProfile } from '../api';
 const AuthContext = createContext();
 
 export const AuthProvider = ({ children }) => {
+  console.log("AuthContext loaded");
+
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);

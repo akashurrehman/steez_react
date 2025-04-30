@@ -6,7 +6,7 @@ import { getProducts, getCategories, getBrands } from "./api";
 import Profile from "@/components/profile/Profile";
 import Checkout from "@/components/checkout/Checkout";
 import AdminPanel from "@/components/admin/AdminPanel";
-import { useAuth } from './context/AuthContext';
+import { useAuth,AuthProvider} from './context/AuthContext';
 import Login from '@/components/auth/Login';
 import Register from '@/components/auth/Register';
 
@@ -71,12 +71,15 @@ const Home1 = () => {
         onLogin={() => setAuthMode(null)}
         onSwitchToRegister={() => setAuthMode('register')}
         onClose={() => setAuthMode(null)}
+        setActiveSection={setActiveSection} 
+        
       />
     ) : (
       <Register
         onRegister={() => setAuthMode(null)}
         onSwitchToLogin={() => setAuthMode('login')}
         onClose={() => setAuthMode(null)}
+        setActiveSection={setActiveSection}
       />
     );
   }
@@ -260,6 +263,7 @@ const Home1 = () => {
   }
 
   return (
+    <AuthProvider>
     <div className="bg-white text-black min-h-screen font-sans pb-16 md:pb-0">
       {/* Desktop header */}
       <header className="hidden md:flex items-center justify-between px-4 py-4 bg-black border-b border-zinc-800 gap-4">
@@ -813,7 +817,7 @@ const Home1 = () => {
           </button>
 
           {/* Profile button - only shows when logged in */}
-          {user && (
+          {user ? (
             <button
               onClick={() => {
                 setActiveSection("Προφίλ");
@@ -823,10 +827,22 @@ const Home1 = () => {
               <User size={24} />
               <span className="text-xs mt-1">Προφίλ</span>
             </button>
+          ):(
+            <button
+              onClick={() => {
+                setAuthMode("login");
+              }}
+              className={`flex flex-col items-center text-white `}
+            >
+              <User size={24} />
+              <span className="text-xs mt-1">Σύνδεση</span>
+            </button>
           )}
         </div>
       </div>
     </div>
+    </AuthProvider>
+
   );
 };
 

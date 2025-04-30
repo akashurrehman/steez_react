@@ -1,9 +1,10 @@
 import React, { useState, useEffect } from "react";
 import { getUserProfile, updateUserProfile, getMyOrders } from "../../api";
 import { useAuth } from "../../context/AuthContext";
+import SwipeBackWrapper from './../../lib/SwipeBackWrapper';
 
 const Profile = ({setActiveSection}) => {
-  const { user, isGuest } = useAuth();
+  const { user, isGuest, logout, guestLogin } = useAuth();
   const [userData, setUserData] = useState(null);
   const [formData, setFormData] = useState({
     full_name: "",
@@ -102,8 +103,11 @@ const Profile = ({setActiveSection}) => {
       </div>
     );
   }
+  const showProfileOption = !!user;
 
   return (
+    <SwipeBackWrapper onBack={() => setActiveSection("Αρχική Σελίδα")}>
+
     <div className="min-h-screen bg-black text-white px-4 py-10 md:px-20">
 
 <button
@@ -202,6 +206,18 @@ const Profile = ({setActiveSection}) => {
                 </button>
               )}
             </form>
+            {user && (
+  <button
+    onClick={() => {
+      logout();
+      setActiveSection("Αρχική Σελίδα");
+    }}
+    className="text-sm px-3 py-1 my-2 rounded border border-white/20 bg-white text-black hover:bg-white hover:text-black transition"
+  >
+    {isGuest ? "Exit Guest" : "Αποσύνδεση"}
+  </button>
+)}
+
 
             {isGuest && (
               <div className="mt-6 p-4 bg-zinc-800 rounded-lg">
@@ -286,6 +302,7 @@ const Profile = ({setActiveSection}) => {
         )}
       </div>
     </div>
+    </SwipeBackWrapper>
   );
 };
 

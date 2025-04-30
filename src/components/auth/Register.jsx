@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import { useAuth } from "../../context/AuthContext";
+import SwipeBackWrapper from './../../lib/SwipeBackWrapper';
 
 const Register = ({ onSwitchToLogin }) => {
   const [formData, setFormData] = useState({
@@ -54,6 +55,7 @@ const Register = ({ onSwitchToLogin }) => {
   };
 
   return (
+    <SwipeBackWrapper onBack={() => setActiveSection("Αρχική Σελίδα")}>
     <div className="min-h-screen bg-black text-white flex items-center justify-center px-4">
       <div className="bg-zinc-900 p-8 rounded-xl shadow-xl w-full max-w-md">
         <h2 className="text-3xl font-bold mb-6 text-center">Εγγραφή</h2>
@@ -159,6 +161,7 @@ const Register = ({ onSwitchToLogin }) => {
         </div>
       </div>
     </div>
+    </SwipeBackWrapper>
   );
 };
 

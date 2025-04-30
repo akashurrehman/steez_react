@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import { getUserProfile, updateUserProfile, getMyOrders } from "../../api";
 import AdminProductManagement from "./AdminProductManagement";
 import AdminOrders from "./AdminOrders";
+import SwipeBackWrapper from './../../lib/SwipeBackWrapper';
 
 const AdminPanel = ({setActiveSection}) => {
 
@@ -82,6 +83,7 @@ const AdminPanel = ({setActiveSection}) => {
   }
 
   return (
+    <SwipeBackWrapper onBack={() => setActiveSection("Αρχική Σελίδα")}>
     <div className="min-h-screen bg-black text-white px-4 py-10 md:px-20">
 
       <button
@@ -253,6 +255,7 @@ const AdminPanel = ({setActiveSection}) => {
 
       </div>
     </div>
+    </SwipeBackWrapper>
   );
 };
 
