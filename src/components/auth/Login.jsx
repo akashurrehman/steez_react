@@ -39,6 +39,12 @@ const Login = ({ onSwitchToRegister, onClose }) => {
     <SwipeBackWrapper onBack={() => setActiveSection("Αρχική Σελίδα")}>
     <div className="min-h-screen bg-black text-white flex items-center justify-center px-4">
       <div className="bg-zinc-900 p-8 rounded-xl shadow-xl w-full max-w-md">
+      <button
+            onClick={() => onClose()}
+            className="inline-flex items-center gap-2 text-sm px-4 py-2 border border-white/30 rounded-full hover:bg-white hover:text-black transition mb-8"
+          >
+            <span className="text-lg">←</span> Πίσω
+          </button>
         <h2 className="text-3xl font-bold mb-6 text-center">Σύνδεση</h2>
         
         {error && (

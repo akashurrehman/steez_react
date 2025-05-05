@@ -123,7 +123,7 @@ const AdminOrders = () => {
                     <li key={item.id} className="flex justify-between border-b pb-2">
                       <div className="flex items-center">
                         <img
-                          src={item.image_url || 'https://via.placeholder.com/50'}
+                          src={item.image_url ? `https://api.steez.gr${item.image_url}` : 'https://via.placeholder.com/50'}
                           alt={item.name}
                           className="w-12 h-12 object-cover mr-3"
                         />

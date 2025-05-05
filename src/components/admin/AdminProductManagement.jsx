@@ -29,15 +29,19 @@ const AdminProductManagement = () => {
         name: '',
         description: '',
         price: '',
-        stock: '',
         category_id: '',
         brand_id: '',
-        sizes: []
+        sizes: [] // Will contain objects like { size: 'S', stock: 5 }
     });
 
     // Size management state
     const [newSize, setNewSize] = useState('');
     const [sizeStock, setSizeStock] = useState('');
+
+    // Calculate total stock from sizes
+    const calculateTotalStock = (sizes) => {
+        return sizes.reduce((total, sizeObj) => total + parseInt(sizeObj.stock || 0), 0);
+    };
 
     // Fetch data on component mount
     useEffect(() => {
@@ -120,7 +124,6 @@ const AdminProductManagement = () => {
             name: '',
             description: '',
             price: '',
-            stock: '',
             category_id: '',
             brand_id: '',
             sizes: []
@@ -141,12 +144,15 @@ const AdminProductManagement = () => {
         try {
             setLoading(true);
 
+            // Calculate total stock from sizes
+            const totalStock = calculateTotalStock(formData.sizes);
+
             // Prepare product data with proper types
             const productData = {
                 name: formData.name,
                 description: formData.description || '',
                 price: parseFloat(formData.price),
-                stock: parseInt(formData.stock),
+                stock: totalStock, // Automatically calculated
                 category_id: formData.category_id || null,
                 brand_id: formData.brand_id || null,
                 sizes: formData.sizes
@@ -159,11 +165,7 @@ const AdminProductManagement = () => {
 
             let response;
             if (isEditing && currentProduct) {
-                console.log("Product data:",productData);
-
                 response = await updateProduct(currentProduct.id, productData);
-                console.log("Response of data uploaidng:",response.data);
-                // Use the returned product data to update state
                 setProducts(products.map(p =>
                     p.id === currentProduct.id ? response.data.product : p
                 ));
@@ -189,7 +191,6 @@ const AdminProductManagement = () => {
             name: product.name,
             description: product.description || '',
             price: product.price.toString(),
-            stock: product.stock.toString(),
             category_id: product.category_id?.toString() || '',
             brand_id: product.brand_id?.toString() || '',
             sizes: product.sizes || []
@@ -294,25 +295,6 @@ const AdminProductManagement = () => {
                                     />
                                 </div>
 
-                                <div>
-                                    <Label htmlFor="stock">Default Stock Quantity</Label>
-                                    <Input
-                                        id="stock"
-                                        name="stock"
-                                        type="number"
-                                        min="1"
-                                        value={formData.stock}
-                                        onChange={(e) => {
-                                            const value = parseInt(e.target.value);
-                                            setFormData(prev => ({
-                                                ...prev,
-                                                stock: isNaN(value) ? '' : value
-                                            }));
-                                        }}
-                                        required
-                                    />
-                                </div>
-
                                 {/* Size Management */}
                                 <div>
                                     <Label>Product Sizes</Label>
@@ -368,6 +350,17 @@ const AdminProductManagement = () => {
                                             ))}
                                         </div>
                                     </div>
+                                </div>
+
+                                {/* Display calculated total stock */}
+                                <div>
+                                    <Label>Total Stock</Label>
+                                    <Input
+                                        type="text"
+                                        value={calculateTotalStock(formData.sizes)}
+                                        readOnly
+                                        className="bg-zinc-800"
+                                    />
                                 </div>
 
                                 <div>
@@ -459,7 +452,7 @@ const AdminProductManagement = () => {
                                             <TableHead>Image</TableHead>
                                             <TableHead>Name</TableHead>
                                             <TableHead>Price</TableHead>
-                                            <TableHead>Stock</TableHead>
+                                            <TableHead>Total Stock</TableHead>
                                             <TableHead>Sizes</TableHead>
                                             <TableHead>Actions</TableHead>
                                         </TableRow>
